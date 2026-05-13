@@ -1,31 +1,31 @@
 import { useState, useEffect, useCallback } from "react";
 
 const API = "https://web-production-e5d51.up.railway.app";
-const POLL_INTERVAL = 5 * 60 * 1000; // 5 minutos
+const POLL_INTERVAL = 5 * 60 * 1000;
 
 const CATEGORY_COLORS = {
-  "Política regional": "#e8534a",
-  "Economía / precios": "#e8a83a",
-  "Clima / medio ambiente": "#4ab8e8",
-  "Fútbol": "#4ae87a",
-  "Salud": "#b44ae8",
-  default: "#888",
+  "Política regional": "#c0392b",
+  "Economía / precios": "#b7770d",
+  "Clima / medio ambiente": "#1a6fa8",
+  "Fútbol": "#1a7a3c",
+  "Salud": "#6c3483",
+  default: "#444",
 };
 
 const styles = `
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
   body {
-    background: #080810;
-    color: #e8e8f0;
-    font-family: 'DM Mono', monospace;
+    background: #ffffff;
+    color: #111111;
+    font-family: 'Georgia', 'Times New Roman', serif;
     min-height: 100vh;
   }
 
   .app {
-    max-width: 900px;
+    max-width: 860px;
     margin: 0 auto;
-    padding: 48px 24px 80px;
+    padding: 52px 28px 100px;
   }
 
   /* Header */
@@ -33,105 +33,108 @@ const styles = `
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
-    margin-bottom: 56px;
-    padding-bottom: 32px;
-    border-bottom: 1px solid #1a1a2e;
+    margin-bottom: 48px;
+    padding-bottom: 28px;
+    border-bottom: 2px solid #111;
   }
-  .header-left {}
   .logo {
-    font-family: 'Syne', sans-serif;
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 0.25em;
+    font-family: 'Arial Black', 'Helvetica Neue', sans-serif;
+    font-size: 12px;
+    font-weight: 900;
+    letter-spacing: 0.2em;
     text-transform: uppercase;
-    color: #e8534a;
-    margin-bottom: 8px;
+    color: #c0392b;
+    margin-bottom: 10px;
   }
   .title {
-    font-family: 'Syne', sans-serif;
-    font-size: 32px;
-    font-weight: 800;
-    color: #f0f0ff;
+    font-family: 'Arial Black', 'Helvetica Neue', sans-serif;
+    font-size: 34px;
+    font-weight: 900;
+    color: #111111;
     line-height: 1.1;
   }
   .subtitle {
-    font-size: 11px;
-    color: #444;
-    margin-top: 6px;
-    letter-spacing: 0.05em;
+    font-family: Arial, sans-serif;
+    font-size: 14px;
+    color: #555;
+    margin-top: 8px;
   }
   .header-right {
     text-align: right;
+    flex-shrink: 0;
+    margin-left: 24px;
   }
   .status-dot {
     display: inline-block;
-    width: 7px;
-    height: 7px;
+    width: 8px;
+    height: 8px;
     border-radius: 50%;
     margin-right: 6px;
     animation: pulse 2s infinite;
   }
-  .status-dot.live { background: #4ae87a; }
-  .status-dot.loading { background: #e8a83a; animation: none; }
-  .status-dot.error { background: #e8534a; animation: none; }
+  .status-dot.live { background: #1a7a3c; }
+  .status-dot.loading { background: #b7770d; animation: none; }
+  .status-dot.error { background: #c0392b; animation: none; }
   @keyframes pulse {
     0%, 100% { opacity: 1; }
-    50% { opacity: 0.3; }
+    50% { opacity: 0.4; }
   }
   .status-text {
-    font-size: 11px;
-    color: #555;
-    letter-spacing: 0.05em;
+    font-family: Arial, sans-serif;
+    font-size: 13px;
+    color: #333;
   }
   .last-update {
-    font-size: 10px;
-    color: #333;
-    margin-top: 4px;
+    font-family: Arial, sans-serif;
+    font-size: 12px;
+    color: #777;
+    margin-top: 5px;
   }
   .refresh-btn {
     margin-top: 10px;
     background: none;
-    border: 1px solid #1e1e35;
-    color: #555;
-    font-family: 'DM Mono', monospace;
-    font-size: 10px;
-    padding: 5px 12px;
-    border-radius: 4px;
+    border: 1px solid #bbb;
+    color: #444;
+    font-family: Arial, sans-serif;
+    font-size: 12px;
+    padding: 6px 14px;
+    border-radius: 3px;
     cursor: pointer;
-    letter-spacing: 0.05em;
-    transition: all 0.2s;
+    transition: all 0.15s;
   }
-  .refresh-btn:hover { border-color: #e8534a; color: #e8534a; }
+  .refresh-btn:hover { border-color: #111; color: #111; }
 
   /* Alert */
   .alert {
-    background: linear-gradient(135deg, #1a0a08, #120808);
-    border: 1px solid #3a1510;
-    border-left: 3px solid #e8534a;
-    border-radius: 8px;
+    background: #fff8f7;
+    border: 1px solid #e0b0aa;
+    border-left: 4px solid #c0392b;
+    border-radius: 4px;
     padding: 20px 24px;
     margin-bottom: 40px;
   }
   .alert-label {
-    font-size: 9px;
-    font-weight: 500;
-    letter-spacing: 0.2em;
+    font-family: Arial, sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.15em;
     text-transform: uppercase;
-    color: #e8534a;
+    color: #c0392b;
     margin-bottom: 8px;
   }
   .alert-text {
-    font-size: 13px;
-    color: #d0b0a8;
+    font-size: 15px;
+    color: #333;
     line-height: 1.6;
   }
 
   /* Semana */
   .week-label {
-    font-size: 10px;
-    letter-spacing: 0.15em;
+    font-family: Arial, sans-serif;
+    font-size: 13px;
+    letter-spacing: 0.08em;
     text-transform: uppercase;
-    color: #333;
+    color: #888;
     margin-bottom: 24px;
   }
 
@@ -139,107 +142,105 @@ const styles = `
   .cards {
     display: flex;
     flex-direction: column;
-    gap: 2px;
+    gap: 16px;
   }
 
   .card {
-    background: #0c0c18;
-    border: 1px solid #141428;
-    border-radius: 10px;
-    padding: 28px;
-    transition: border-color 0.2s;
-    position: relative;
-    overflow: hidden;
+    background: #ffffff;
+    border: 1px solid #ddd;
+    border-top: 4px solid var(--cat-color);
+    border-radius: 4px;
+    padding: 28px 32px;
+    transition: box-shadow 0.2s;
   }
-  .card::before {
-    content: '';
-    position: absolute;
-    left: 0; top: 0; bottom: 0;
-    width: 3px;
-    background: var(--cat-color);
-    border-radius: 2px 0 0 2px;
-  }
-  .card:hover { border-color: #222240; }
+  .card:hover { box-shadow: 0 2px 12px rgba(0,0,0,0.08); }
 
   .card-top {
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
-    margin-bottom: 16px;
+    margin-bottom: 14px;
   }
   .card-left { flex: 1; }
   .card-category {
-    font-size: 9px;
-    font-weight: 500;
-    letter-spacing: 0.18em;
+    font-family: Arial, sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.15em;
     text-transform: uppercase;
     color: var(--cat-color);
-    margin-bottom: 6px;
+    margin-bottom: 8px;
   }
   .card-tema {
-    font-family: 'Syne', sans-serif;
-    font-size: 17px;
-    font-weight: 700;
-    color: #f0f0ff;
-    line-height: 1.3;
+    font-family: 'Arial Black', 'Helvetica Neue', sans-serif;
+    font-size: 20px;
+    font-weight: 900;
+    color: #111;
+    line-height: 1.25;
   }
   .card-confidence {
     text-align: right;
     flex-shrink: 0;
-    margin-left: 20px;
+    margin-left: 24px;
   }
   .confidence-number {
-    font-family: 'Syne', sans-serif;
-    font-size: 28px;
-    font-weight: 800;
+    font-family: 'Arial Black', 'Helvetica Neue', sans-serif;
+    font-size: 36px;
+    font-weight: 900;
     color: var(--cat-color);
     line-height: 1;
   }
   .confidence-label {
-    font-size: 9px;
-    color: #333;
-    letter-spacing: 0.1em;
-    margin-top: 2px;
+    font-family: Arial, sans-serif;
+    font-size: 11px;
+    color: #888;
+    margin-top: 3px;
   }
 
   .card-razon {
-    font-size: 12px;
-    color: #666;
-    line-height: 1.6;
-    margin-bottom: 20px;
+    font-size: 15px;
+    color: #444;
+    line-height: 1.65;
+    margin-bottom: 22px;
+    border-left: 2px solid #eee;
+    padding-left: 14px;
   }
 
   /* Enfoques */
   .enfoques-label {
-    font-size: 9px;
-    letter-spacing: 0.15em;
+    font-family: Arial, sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
     text-transform: uppercase;
-    color: #333;
+    color: #888;
     margin-bottom: 10px;
   }
   .enfoques {
     display: flex;
     flex-direction: column;
     gap: 8px;
-    margin-bottom: 20px;
+    margin-bottom: 22px;
   }
   .enfoque-item {
-    background: #080810;
-    border: 1px solid #111124;
-    border-radius: 6px;
+    background: #f8f8f8;
+    border: 1px solid #e8e8e8;
+    border-radius: 3px;
     padding: 12px 16px;
   }
   .enfoque-tag {
-    font-size: 9px;
-    letter-spacing: 0.12em;
+    font-family: Arial, sans-serif;
+    font-size: 11px;
+    font-weight: 700;
     text-transform: uppercase;
-    color: #444;
-    margin-bottom: 4px;
+    letter-spacing: 0.1em;
+    color: #888;
+    margin-bottom: 5px;
   }
   .enfoque-titular {
-    font-size: 13px;
-    color: #c0c0d8;
-    line-height: 1.4;
+    font-size: 15px;
+    color: #111;
+    line-height: 1.45;
   }
 
   /* Ventana y feedback */
@@ -247,38 +248,40 @@ const styles = `
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding-top: 16px;
-    border-top: 1px solid #0e0e20;
+    padding-top: 18px;
+    border-top: 1px solid #eee;
+    flex-wrap: wrap;
+    gap: 10px;
   }
   .ventana {
-    font-size: 10px;
-    color: #333;
-    letter-spacing: 0.05em;
+    font-family: Arial, sans-serif;
+    font-size: 13px;
+    color: #888;
   }
   .ventana span {
-    color: #555;
+    color: #333;
+    font-weight: 700;
     margin-left: 4px;
   }
   .feedback-btns {
     display: flex;
-    gap: 6px;
+    gap: 8px;
   }
   .fb-btn {
-    background: none;
-    border: 1px solid #1a1a30;
-    color: #444;
-    font-family: 'DM Mono', monospace;
-    font-size: 10px;
-    padding: 5px 10px;
-    border-radius: 4px;
+    background: #fff;
+    border: 1px solid #ccc;
+    color: #555;
+    font-family: Arial, sans-serif;
+    font-size: 13px;
+    padding: 6px 14px;
+    border-radius: 3px;
     cursor: pointer;
-    letter-spacing: 0.05em;
-    transition: all 0.2s;
+    transition: all 0.15s;
   }
-  .fb-btn:hover { border-color: #333; color: #888; }
-  .fb-btn.active-usado { border-color: #4ae87a; color: #4ae87a; }
-  .fb-btn.active-descartado { border-color: #e8534a; color: #e8534a; }
-  .fb-btn.active-pendiente { border-color: #e8a83a; color: #e8a83a; }
+  .fb-btn:hover { border-color: #555; color: #111; }
+  .fb-btn.active-usado { background: #edfaf3; border-color: #1a7a3c; color: #1a7a3c; font-weight: 700; }
+  .fb-btn.active-descartado { background: #fdf0ef; border-color: #c0392b; color: #c0392b; font-weight: 700; }
+  .fb-btn.active-pendiente { background: #fdf8ee; border-color: #b7770d; color: #b7770d; font-weight: 700; }
 
   /* Loading / Error */
   .state-center {
@@ -291,35 +294,38 @@ const styles = `
   }
   .spinner {
     width: 32px; height: 32px;
-    border: 2px solid #1a1a2e;
-    border-top-color: #e8534a;
+    border: 2px solid #eee;
+    border-top-color: #c0392b;
     border-radius: 50%;
     animation: spin 0.8s linear infinite;
   }
   @keyframes spin { to { transform: rotate(360deg); } }
   .state-msg {
-    font-size: 12px;
-    color: #444;
-    letter-spacing: 0.05em;
+    font-family: Arial, sans-serif;
+    font-size: 15px;
+    color: #777;
   }
   .retry-btn {
-    background: none;
-    border: 1px solid #e8534a;
-    color: #e8534a;
-    font-family: 'DM Mono', monospace;
-    font-size: 11px;
-    padding: 8px 20px;
-    border-radius: 4px;
+    background: #fff;
+    border: 1px solid #c0392b;
+    color: #c0392b;
+    font-family: Arial, sans-serif;
+    font-size: 14px;
+    padding: 8px 22px;
+    border-radius: 3px;
     cursor: pointer;
   }
+  .retry-btn:hover { background: #c0392b; color: #fff; }
 
   /* Footer */
   .footer {
     margin-top: 60px;
+    padding-top: 24px;
+    border-top: 1px solid #eee;
     text-align: center;
-    font-size: 10px;
-    color: #1e1e35;
-    letter-spacing: 0.08em;
+    font-family: Arial, sans-serif;
+    font-size: 12px;
+    color: #bbb;
   }
 `;
 
@@ -354,21 +360,21 @@ function PredictionCard({ pred, onFeedback, feedback }) {
 
       <div className="card-bottom">
         <div className="ventana">
-          ventana óptima <span>{pred.ventana_optima}</span>
+          Ventana óptima <span>{pred.ventana_optima}</span>
         </div>
         <div className="feedback-btns">
           <button
             className={`fb-btn${estado === "usado" ? " active-usado" : ""}`}
             onClick={() => onFeedback(pred.tema, "usado")}
-          >✓ usado</button>
+          >✓ Usado</button>
           <button
             className={`fb-btn${estado === "pendiente" ? " active-pendiente" : ""}`}
             onClick={() => onFeedback(pred.tema, "pendiente")}
-          >⏳ pendiente</button>
+          >⏳ Pendiente</button>
           <button
             className={`fb-btn${estado === "descartado" ? " active-descartado" : ""}`}
             onClick={() => onFeedback(pred.tema, "descartado")}
-          >✕ descartar</button>
+          >✕ Descartar</button>
         </div>
       </div>
     </div>
@@ -412,7 +418,7 @@ export default function App() {
         body: JSON.stringify({ tema, estado }),
       });
     } catch {
-      // silencioso — la UI ya mostró el cambio
+      // silencioso
     }
   }, []);
 
@@ -438,27 +444,27 @@ export default function App() {
             <div>
               <span className={`status-dot ${loading ? "loading" : error ? "error" : "live"}`} />
               <span className="status-text">
-                {loading ? "cargando" : error ? "sin conexión" : "en vivo"}
+                {loading ? "Cargando..." : error ? "Sin conexión" : "En vivo"}
               </span>
             </div>
             {lastUpdate && (
-              <div className="last-update">actualizado {formatTime(lastUpdate)}</div>
+              <div className="last-update">Actualizado {formatTime(lastUpdate)}</div>
             )}
-            <button className="refresh-btn" onClick={fetchData}>↻ actualizar</button>
+            <button className="refresh-btn" onClick={fetchData}>↻ Actualizar</button>
           </div>
         </header>
 
         {loading && (
           <div className="state-center">
             <div className="spinner" />
-            <div className="state-msg">consultando predicciones...</div>
+            <div className="state-msg">Consultando predicciones...</div>
           </div>
         )}
 
         {error && !loading && (
           <div className="state-center">
-            <div className="state-msg">no se pudo conectar al servidor</div>
-            <button className="retry-btn" onClick={fetchData}>reintentar</button>
+            <div className="state-msg">No se pudo conectar al servidor</div>
+            <button className="retry-btn" onClick={fetchData}>Reintentar</button>
           </div>
         )}
 
@@ -466,13 +472,13 @@ export default function App() {
           <>
             {alerta && (
               <div className="alert">
-                <div className="alert-label">⚡ alerta editorial</div>
+                <div className="alert-label">⚡ Alerta editorial</div>
                 <div className="alert-text">{alerta}</div>
               </div>
             )}
 
             {semana && (
-              <div className="week-label">semana {semana} · {data.contexto?.temporada}</div>
+              <div className="week-label">Semana {semana} · {data.contexto?.temporada}</div>
             )}
 
             <div className="cards">
@@ -489,7 +495,7 @@ export default function App() {
         )}
 
         <div className="footer">
-          BioBioChile Predictor · actualización automática cada 5 min · datos reales
+          BioBioChile Predictor · Actualización automática cada 5 minutos
         </div>
       </div>
     </>
