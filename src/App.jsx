@@ -14,20 +14,28 @@ const REGIONS = [
   { key: "internacional", label: "Internacional" },
 ];
 
+const TENDENCIAS = [
+  { key: "espectaculos",       label: "TV y Espectáculos" },
+  { key: "dopamina",           label: "Dopamina" },
+  { key: "electroshock",       label: "Electroshock" },
+  { key: "sociedad",           label: "Sociedad" },
+  { key: "ciencia-tecnologia", label: "Ciencia y Tecnología" },
+  { key: "salud-bienestar",    label: "Salud y Bienestar" },
+  { key: "artes-cultura",      label: "Artes y Cultura" },
+];
+
+const TENDENCIAS_KEYS = new Set(TENDENCIAS.map(t => t.key));
+
 const CATEGORY_COLORS = {
-  "Política regional": "#c0392b",
-  "Política nacional": "#c0392b",
-  "Política": "#c0392b",
-  "Economía / precios": "#b7770d",
-  "Economía": "#b7770d",
-  "Clima / medio ambiente": "#1a6fa8",
-  "Clima": "#1a6fa8",
-  "Medio ambiente": "#1a6fa8",
-  "Fútbol": "#1a7a3c",
-  "Salud": "#6c3483",
-  "Conflicto mapuche": "#8B4513",
-  "Seguridad": "#555",
-  "Internacional": "#1a6fa8",
+  "Política regional": "#c0392b", "Política nacional": "#c0392b", "Política": "#c0392b",
+  "Economía / precios": "#b7770d", "Economía": "#b7770d",
+  "Clima / medio ambiente": "#1a6fa8", "Clima": "#1a6fa8", "Medio ambiente": "#1a6fa8",
+  "Fútbol": "#1a7a3c", "Salud": "#6c3483", "Salud mental": "#6c3483",
+  "Conflicto mapuche": "#8B4513", "Seguridad": "#555",
+  "Reality shows": "#d35400", "Farándula chilena": "#d35400",
+  "Inteligencia artificial": "#1a6fa8", "Tecnología": "#1a6fa8",
+  "Música": "#8e44ad", "Videojuegos": "#8e44ad",
+  "Cine y teatro": "#2c3e50", "Literatura": "#2c3e50",
   default: "#444",
 };
 
@@ -36,7 +44,7 @@ const styles = `
   body { background: #e0e0e0; color: #111; font-family: Arial, Helvetica, sans-serif; min-height: 100vh; }
   .app { max-width: 860px; margin: 0 auto; padding: 48px 24px 80px; }
 
-  .header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 28px; padding-bottom: 24px; border-bottom: 2px solid #111; }
+  .header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px; padding-bottom: 24px; border-bottom: 2px solid #111; }
   .logo { font-size: 11px; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; color: #c0392b; margin-bottom: 8px; }
   .title { font-size: 28px; font-weight: 700; color: #111; line-height: 1.1; }
   .subtitle { font-size: 13px; color: #444; margin-top: 6px; }
@@ -49,11 +57,24 @@ const styles = `
   .status-text { font-size: 13px; color: #333; }
   .last-update { font-size: 12px; color: #666; margin-top: 4px; }
   .refresh-btn { margin-top: 8px; background: #fff; border: 1px solid #aaa; color: #333; font-family: Arial, sans-serif; font-size: 12px; padding: 5px 12px; border-radius: 3px; cursor: pointer; }
-  .refresh-btn:hover { border-color: #111; color: #111; }
+  .refresh-btn:hover { border-color: #111; }
 
-  /* Barra de regiones */
-  .region-bar { display: flex; gap: 4px; flex-wrap: wrap; margin-bottom: 28px; background: #d0d0d0; padding: 6px; border-radius: 6px; }
-  .region-btn { flex: 1; min-width: max-content; background: transparent; border: none; color: #555; font-family: Arial, sans-serif; font-size: 13px; font-weight: 500; padding: 8px 12px; border-radius: 4px; cursor: pointer; white-space: nowrap; transition: all 0.15s; }
+  /* Barra principal */
+  .main-bar { display: flex; gap: 3px; flex-wrap: wrap; margin-bottom: 4px; background: #d0d0d0; padding: 5px; border-radius: 6px 6px 0 0; }
+  .main-btn { flex: 1; min-width: max-content; background: transparent; border: none; color: #555; font-family: Arial, sans-serif; font-size: 13px; font-weight: 500; padding: 7px 10px; border-radius: 4px; cursor: pointer; white-space: nowrap; transition: all 0.15s; }
+  .main-btn:hover { background: #c8c8c8; color: #111; }
+  .main-btn.active { background: #fff; color: #111; font-weight: 700; box-shadow: 0 1px 3px rgba(0,0,0,0.12); }
+  .main-btn.tendencias-btn.active { background: #c0392b; color: #fff; }
+
+  /* Sub-barra Tendencias */
+  .sub-bar { display: flex; gap: 3px; flex-wrap: wrap; background: #c8c8c8; padding: 5px; border-radius: 0 0 6px 6px; margin-bottom: 24px; }
+  .sub-btn { flex: 1; min-width: max-content; background: transparent; border: none; color: #444; font-family: Arial, sans-serif; font-size: 12px; padding: 6px 10px; border-radius: 4px; cursor: pointer; white-space: nowrap; transition: all 0.15s; }
+  .sub-btn:hover { background: #bbb; color: #111; }
+  .sub-btn.active { background: #fff; color: #c0392b; font-weight: 700; }
+
+  /* Barra solo regiones */
+  .region-bar { display: flex; gap: 3px; flex-wrap: wrap; margin-bottom: 24px; background: #d0d0d0; padding: 5px; border-radius: 6px; }
+  .region-btn { flex: 1; min-width: max-content; background: transparent; border: none; color: #555; font-family: Arial, sans-serif; font-size: 13px; font-weight: 500; padding: 7px 10px; border-radius: 4px; cursor: pointer; white-space: nowrap; transition: all 0.15s; }
   .region-btn:hover { background: #c8c8c8; color: #111; }
   .region-btn.active { background: #fff; color: #111; font-weight: 700; box-shadow: 0 1px 3px rgba(0,0,0,0.12); }
 
@@ -101,7 +122,6 @@ const styles = `
 function PredictionCard({ pred, region, onFeedback, feedback }) {
   const catColor = CATEGORY_COLORS[pred.categoria] || CATEGORY_COLORS.default;
   const estado = feedback[`${region}:${pred.tema}`];
-
   return (
     <div className="card" style={{ "--cat-color": catColor }}>
       <div className="card-top">
@@ -137,21 +157,24 @@ function PredictionCard({ pred, region, onFeedback, feedback }) {
 }
 
 export default function App() {
-  const [activeRegion, setActiveRegion] = useState("biobio");
+  const [activeSection, setActiveSection] = useState("biobio");
+  const [showTendencias, setShowTendencias] = useState(false);
   const [cache, setCache] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [lastUpdate, setLastUpdate] = useState(null);
   const [feedback, setFeedback] = useState({});
 
-  const fetchRegion = useCallback(async (regionKey) => {
+  const isTendencias = TENDENCIAS_KEYS.has(activeSection);
+
+  const fetchSection = useCallback(async (key) => {
     setLoading(true);
     setError(false);
     try {
-      const res = await fetch(`${API}/predicciones?region=${regionKey}`);
+      const res = await fetch(`${API}/predicciones?region=${key}`);
       if (!res.ok) throw new Error();
       const json = await res.json();
-      setCache(prev => ({ ...prev, [regionKey]: json }));
+      setCache(prev => ({ ...prev, [key]: json }));
       setLastUpdate(new Date());
     } catch {
       setError(true);
@@ -161,33 +184,46 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    if (!cache[activeRegion]) {
-      fetchRegion(activeRegion);
-    }
-    const interval = setInterval(() => fetchRegion(activeRegion), POLL_INTERVAL);
+    if (!cache[activeSection]) fetchSection(activeSection);
+    const interval = setInterval(() => fetchSection(activeSection), POLL_INTERVAL);
     return () => clearInterval(interval);
-  }, [activeRegion, fetchRegion]);
+  }, [activeSection, fetchSection]);
 
-  const handleRegionChange = (key) => {
-    setActiveRegion(key);
+  const handleRegion = (key) => {
+    setActiveSection(key);
+    setShowTendencias(false);
+    setError(false);
+    if (!cache[key]) setLoading(true);
+  };
+
+  const handleTendenciasTab = () => {
+    setShowTendencias(true);
+    const first = TENDENCIAS[0].key;
+    setActiveSection(first);
+    setError(false);
+    if (!cache[first]) setLoading(true);
+  };
+
+  const handleSubSection = (key) => {
+    setActiveSection(key);
     setError(false);
     if (!cache[key]) setLoading(true);
   };
 
   const handleFeedback = useCallback(async (tema, estado) => {
-    const key = `${activeRegion}:${tema}`;
+    const key = `${activeSection}:${tema}`;
     setFeedback(prev => ({ ...prev, [key]: estado }));
     try {
       await fetch(`${API}/feedback`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ tema, estado, region: activeRegion }),
+        body: JSON.stringify({ tema, estado, region: activeSection }),
       });
     } catch {}
-  }, [activeRegion]);
+  }, [activeSection]);
 
   const formatTime = (d) => d ? d.toLocaleTimeString("es-CL", { hour: "2-digit", minute: "2-digit" }) : "";
-  const data = cache[activeRegion];
+  const data = cache[activeSection];
   const isLoading = loading && !data;
 
   return (
@@ -206,22 +242,36 @@ export default function App() {
               <span className="status-text">{isLoading ? "Cargando..." : error ? "Sin conexión" : "En vivo"}</span>
             </div>
             {lastUpdate && <div className="last-update">Actualizado {formatTime(lastUpdate)}</div>}
-            <button className="refresh-btn" onClick={() => { setCache(prev => ({ ...prev, [activeRegion]: undefined })); fetchRegion(activeRegion); }}>↻ Actualizar</button>
+            <button className="refresh-btn" onClick={() => { setCache(prev => ({ ...prev, [activeSection]: undefined })); fetchSection(activeSection); }}>↻ Actualizar</button>
           </div>
         </header>
 
-        <div className="region-bar">
-          {REGIONS.map(r => (
-            <button
-              key={r.key}
-              className={`region-btn${activeRegion === r.key ? " active" : ""}`}
-              onClick={() => handleRegionChange(r.key)}
-            >{r.label}</button>
-          ))}
-        </div>
+        {/* Navegación */}
+        {showTendencias ? (
+          <>
+            <div className="main-bar">
+              {REGIONS.map(r => (
+                <button key={r.key} className="main-btn" onClick={() => handleRegion(r.key)}>{r.label}</button>
+              ))}
+              <button className="main-btn tendencias-btn active" onClick={() => setShowTendencias(true)}>Tendencias</button>
+            </div>
+            <div className="sub-bar">
+              {TENDENCIAS.map(t => (
+                <button key={t.key} className={`sub-btn${activeSection === t.key ? " active" : ""}`} onClick={() => handleSubSection(t.key)}>{t.label}</button>
+              ))}
+            </div>
+          </>
+        ) : (
+          <div className="region-bar">
+            {REGIONS.map(r => (
+              <button key={r.key} className={`region-btn${activeSection === r.key ? " active" : ""}`} onClick={() => handleRegion(r.key)}>{r.label}</button>
+            ))}
+            <button className="region-btn tendencias-btn" onClick={handleTendenciasTab}>Tendencias ▾</button>
+          </div>
+        )}
 
         {isLoading && <div className="state-center"><div className="spinner" /><div className="state-msg">Cargando predicciones...</div></div>}
-        {error && !isLoading && <div className="state-center"><div className="state-msg">No se pudo conectar al servidor</div><button className="retry-btn" onClick={() => fetchRegion(activeRegion)}>Reintentar</button></div>}
+        {error && !isLoading && <div className="state-center"><div className="state-msg">No se pudo conectar al servidor</div><button className="retry-btn" onClick={() => fetchSection(activeSection)}>Reintentar</button></div>}
 
         {!isLoading && !error && data && (
           <>
@@ -236,7 +286,7 @@ export default function App() {
             )}
             <div className="cards">
               {(data.predicciones || []).map((pred, i) => (
-                <PredictionCard key={`${pred.tema}-${i}`} pred={pred} region={activeRegion} feedback={feedback} onFeedback={handleFeedback} />
+                <PredictionCard key={`${pred.tema}-${i}`} pred={pred} region={activeSection} feedback={feedback} onFeedback={handleFeedback} />
               ))}
             </div>
           </>
