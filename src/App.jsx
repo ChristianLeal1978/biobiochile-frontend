@@ -4,24 +4,25 @@ const API = "https://web-production-e5d51.up.railway.app";
 const POLL_INTERVAL = 5 * 60 * 1000;
 
 const REGIONS = [
+  { key: "nacional",      label: "Nacional" },
+  { key: "internacional", label: "Internacional" },
+  { key: "economia",      label: "Economía" },
   { key: "valparaiso",    label: "Valparaíso" },
   { key: "metropolitana", label: "Metropolitana" },
   { key: "biobio",        label: "Biobío" },
   { key: "araucania",     label: "Araucanía" },
   { key: "los-rios",      label: "Los Ríos" },
   { key: "los-lagos",     label: "Los Lagos" },
-  { key: "nacional",      label: "Nacional" },
-  { key: "internacional", label: "Internacional" },
-  { key: "deportes",      label: "Deportes" },
-  { key: "economia",      label: "Economía" },
 ];
 
 const TENDENCIAS = [
-  { key: "espectaculos",       label: "TV y Espectáculos" },
-  { key: "sociedad",           label: "Sociedad" },
-  { key: "ciencia-tecnologia", label: "Ciencia y Tecnología" },
-  { key: "salud-bienestar",    label: "Salud" },
-  { key: "artes-cultura",      label: "Cultura" },
+  { key: "deportes",          label: "Deportes" },
+  { key: "ciencia-tecnologia",label: "Ciencia y Tecnología" },
+  { key: "artes-cultura",     label: "Cultura" },
+  { key: "dopamina",          label: "Dopamina" },
+  { key: "salud-bienestar",   label: "Salud" },
+  { key: "sociedad",          label: "Sociedad" },
+  { key: "espectaculos",      label: "TV y Espectáculos" },
 ];
 
 const ALL_SECTIONS = [...REGIONS, ...TENDENCIAS];
@@ -38,6 +39,7 @@ const CATEGORY_COLORS = {
   "Música": "#8e44ad", "Videojuegos": "#8e44ad",
   "Cine y teatro": "#2c3e50", "Literatura": "#2c3e50",
   "Automovilismo": "#c0392b",
+  "Tendencias virales": "#d35400", "Humor y memes": "#d35400",
   default: "#444",
 };
 
@@ -272,12 +274,12 @@ export default function App() {
 
         <div className="nav-wrapper">
           <div className="nav-row">
-{REGIONS.map(r => (
+            {REGIONS.map(r => (
               <button key={r.key} className={`nav-btn${activeSection === r.key ? " active" : ""}`} onClick={() => handleSection(r.key)}>{r.label}</button>
             ))}
           </div>
           <div className="nav-row">
-{TENDENCIAS.map(t => (
+            {TENDENCIAS.map(t => (
               <button key={t.key} className={`nav-btn tendencia${activeSection === t.key ? " active" : ""}`} onClick={() => handleSection(t.key)}>{t.label}</button>
             ))}
           </div>
