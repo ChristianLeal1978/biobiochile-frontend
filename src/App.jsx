@@ -1,6 +1,8 @@
 import { useState, useEffect, useCallback } from "react";
+import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
 
 const API = "https://web-production-e5d51.up.railway.app";
+const MINDICADOR = "https://mindicador.cl/api";
 const POLL_INTERVAL = 5 * 60 * 1000;
 
 const REGIONS = [
@@ -25,7 +27,7 @@ const TENDENCIAS = [
   { key: "espectaculos",      label: "TV y Espectáculos" },
 ];
 
-const ALL_SECTIONS = [...REGIONS, ...TENDENCIAS];
+const STOCK_SECTIONS = new Set(["economia", "nacional", "internacional", "ciencia-tecnologia"]);
 
 const CATEGORY_COLORS = {
   "Política regional": "#c0392b", "Política nacional": "#c0392b", "Política": "#c0392b",
@@ -68,9 +70,9 @@ const styles = `
   .sources-grid { display: flex; flex-wrap: wrap; gap: 8px; }
   .source-item { display: flex; align-items: center; gap: 6px; background: #f5f5f5; border: 1px solid #e0e0e0; border-radius: 4px; padding: 5px 10px; }
   .source-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
-  .source-dot.ok     { background: #1a7a3c; }
-  .source-dot.stale  { background: #b7770d; }
-  .source-dot.error  { background: #c0392b; }
+  .source-dot.ok    { background: #1a7a3c; }
+  .source-dot.stale { background: #b7770d; }
+  .source-dot.error { background: #c0392b; }
   .source-name   { font-size: 12px; color: #333; font-weight: 500; }
   .source-detail { font-size: 11px; color: #888; }
   .source-time   { font-size: 11px; color: #aaa; margin-left: 4px; }
@@ -83,6 +85,28 @@ const styles = `
   .nav-btn:hover { background: #c8c8c8; color: #111; }
   .nav-btn.active { background: #fff; color: #111; font-weight: 700; box-shadow: 0 1px 3px rgba(0,0,0,0.12); }
   .nav-btn.tendencia.active { background: #c0392b; color: #fff; }
+
+  /* Panel de bolsa */
+  .bolsa-panel { background: #fff; border: 1px solid #ccc; border-radius: 6px; padding: 14px 18px; margin-bottom: 16px; }
+  .bolsa-title { font-size: 11px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: #888; margin-bottom: 10px; }
+  .bolsa-grid { display: flex; flex-wrap: wrap; gap: 8px; }
+  .bolsa-item { background: #f5f5f5; border: 1px solid #e0e0e0; border-radius: 4px; padding: 6px 12px; min-width: 120px; }
+  .bolsa-nombre { font-size: 11px; color: #888; margin-bottom: 2px; }
+  .bolsa-precio { font-size: 14px; font-weight: 700; color: #111; }
+  .bolsa-cambio { font-size: 12px; font-weight: 600; }
+  .bolsa-cambio.sube { color: #1a7a3c; }
+  .bolsa-cambio.baja { color: #c0392b; }
+
+  /* Gráficos */
+  .charts-panel { margin-bottom: 20px; }
+  .charts-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+  @media (max-width: 640px) { .charts-grid { grid-template-columns: 1fr; } }
+  .chart-card { background: #fff; border: 1px solid #ccc; border-radius: 6px; padding: 14px 16px; }
+  .chart-label { font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #888; margin-bottom: 4px; }
+  .chart-value { font-size: 18px; font-weight: 700; color: #111; margin-bottom: 10px; }
+  .chart-change { font-size: 12px; font-weight: 600; margin-left: 8px; }
+  .chart-change.sube { color: #1a7a3c; }
+  .chart-change.baja { color: #c0392b; }
 
   .alert { background: #fff5f5; border-left: 4px solid #c0392b; border-radius: 0 4px 4px 0; padding: 16px 20px; margin-bottom: 24px; }
   .alert-label { font-size: 11px; font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase; color: #c0392b; margin-bottom: 6px; }
@@ -120,7 +144,6 @@ const styles = `
   .state-msg { font-size: 14px; color: #666; }
   .retry-btn { background: #fff; border: 1px solid #c0392b; color: #c0392b; font-family: Arial, sans-serif; font-size: 13px; padding: 8px 20px; border-radius: 3px; cursor: pointer; }
   .retry-btn:hover { background: #c0392b; color: #fff; }
-
   .footer { margin-top: 48px; padding-top: 20px; border-top: 1px solid #ccc; text-align: center; font-size: 12px; color: #999; }
 `;
 
@@ -131,6 +154,111 @@ function formatTimestamp(isoStr) {
   const isToday = d.toDateString() === now.toDateString();
   const hhmm = d.toLocaleTimeString("es-CL", { hour: "2-digit", minute: "2-digit" });
   return isToday ? hhmm : `${d.getDate()}/${d.getMonth()+1} ${hhmm}`;
+}
+
+function formatChartDate(isoStr) {
+  const d = new Date(isoStr);
+  return `${d.getDate()}/${d.getMonth()+1}`;
+}
+
+function formatNumber(n, decimals = 0) {
+  return n?.toLocaleString("es-CL", { minimumFractionDigits: decimals, maximumFractionDigits: decimals }) ?? "—";
+}
+
+// Obtiene últimas N entradas de la serie de mindicador.cl
+async function fetchSerie(indicador, n = 30) {
+  try {
+    const res = await fetch(`${MINDICADOR}/${indicador}`);
+    const json = await res.json();
+    const serie = (json.serie || []).slice(0, n).reverse();
+    return serie.map(e => ({ fecha: formatChartDate(e.fecha), valor: e.valor }));
+  } catch {
+    return [];
+  }
+}
+
+function MiniChart({ data, color, unit }) {
+  if (!data || data.length === 0) return <div style={{ height: 80, display: "flex", alignItems: "center", justifyContent: "center", color: "#aaa", fontSize: 12 }}>Sin datos</div>;
+  return (
+    <ResponsiveContainer width="100%" height={80}>
+      <LineChart data={data} margin={{ top: 4, right: 4, bottom: 0, left: 0 }}>
+        <XAxis dataKey="fecha" hide tick={false} />
+        <YAxis domain={["auto", "auto"]} hide />
+        <Tooltip
+          contentStyle={{ fontSize: 11, padding: "4px 8px", border: "1px solid #ddd" }}
+          formatter={(v) => [`${unit}${formatNumber(v, unit === "$" ? 0 : 0)}`, ""]}
+          labelFormatter={(l) => l}
+        />
+        <Line type="monotone" dataKey="valor" stroke={color} strokeWidth={2} dot={false} />
+      </LineChart>
+    </ResponsiveContainer>
+  );
+}
+
+function EconomiaCharts() {
+  const [dolar, setDolar] = useState([]);
+  const [bitcoin, setBitcoin] = useState([]);
+  const [gasolina, setGasolina] = useState([]);
+
+  useEffect(() => {
+    fetchSerie("dolar", 30).then(setDolar);
+    fetchSerie("bitcoin", 30).then(setBitcoin);
+    fetchSerie("gasolina_97", 12).then(setGasolina);
+  }, []);
+
+  const last = (arr) => arr[arr.length - 1]?.valor;
+  const prev = (arr) => arr[arr.length - 2]?.valor;
+  const pct  = (arr) => {
+    const l = last(arr), p = prev(arr);
+    if (!l || !p) return null;
+    return ((l - p) / p * 100).toFixed(2);
+  };
+
+  const ChartCard = ({ label, data, color, unit }) => {
+    const l = last(data);
+    const p = pct(data);
+    const sube = p >= 0;
+    return (
+      <div className="chart-card">
+        <div className="chart-label">{label}</div>
+        <div className="chart-value">
+          {unit}{l ? formatNumber(l) : "—"}
+          {p !== null && <span className={`chart-change ${sube ? "sube" : "baja"}`}>{sube ? "▲" : "▼"} {Math.abs(p)}%</span>}
+        </div>
+        <MiniChart data={data} color={color} unit={unit} />
+      </div>
+    );
+  };
+
+  return (
+    <div className="charts-panel">
+      <div className="charts-grid">
+        <ChartCard label="Dólar (CLP)" data={dolar} color="#b7770d" unit="$" />
+        <ChartCard label="Bitcoin (CLP)" data={bitcoin} color="#f7931a" unit="$" />
+        <ChartCard label="Gasolina 97 (CLP/L)" data={gasolina} color="#c0392b" unit="$" />
+      </div>
+    </div>
+  );
+}
+
+function BolsaPanel({ bolsa }) {
+  if (!bolsa || bolsa.length === 0) return null;
+  return (
+    <div className="bolsa-panel">
+      <div className="bolsa-title">Mercados</div>
+      <div className="bolsa-grid">
+        {bolsa.map((item, i) => (
+          <div className="bolsa-item" key={i}>
+            <div className="bolsa-nombre">{item.nombre} <span style={{ color: "#bbb" }}>({item.moneda})</span></div>
+            <div className="bolsa-precio">{item.moneda === "CLP" ? "$" : ""}{formatNumber(item.price, item.moneda === "USD" ? 2 : 0)}</div>
+            <div className={`bolsa-cambio ${item.sube ? "sube" : "baja"}`}>
+              {item.sube ? "▲" : "▼"} {Math.abs(item.change_pct)}%
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
 }
 
 function SourcesPanel({ sources }) {
@@ -256,6 +384,7 @@ export default function App() {
   const formatTime = (d) => d ? d.toLocaleTimeString("es-CL", { hour: "2-digit", minute: "2-digit" }) : "";
   const data = cache[activeSection];
   const isLoading = loading && !data;
+  const bolsa = data?.contexto?.bolsa || [];
 
   return (
     <>
@@ -297,6 +426,9 @@ export default function App() {
 
         {!isLoading && !error && data && (
           <>
+            {activeSection === "economia" && <EconomiaCharts />}
+            {STOCK_SECTIONS.has(activeSection) && bolsa.length > 0 && <BolsaPanel bolsa={bolsa} />}
+
             {data.alerta && (
               <div className="alert">
                 <div className="alert-label">⚡ Alerta editorial</div>
