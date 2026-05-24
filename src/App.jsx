@@ -67,7 +67,7 @@ const styles = `
 
   .sources-panel { background: #fff; border: 1px solid #ccc; border-radius: 6px; padding: 14px 18px; margin-bottom: 16px; }
   .sources-title { font-size: 11px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: #888; margin-bottom: 10px; }
-  .sources-grid { display: flex; flex-wrap: wrap; gap: 8px; }
+  .sources-grid { display: flex; flex-direction: column; gap: 6px; }
   .source-item { display: flex; align-items: center; gap: 6px; background: #f5f5f5; border: 1px solid #e0e0e0; border-radius: 4px; padding: 5px 10px; }
   .source-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
   .source-dot.ok    { background: #1a7a3c; }
