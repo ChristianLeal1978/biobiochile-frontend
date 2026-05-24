@@ -18,12 +18,10 @@ const REGIONS = [
 
 const TENDENCIAS = [
   { key: "espectaculos",       label: "TV y Espectáculos" },
-  { key: "dopamina",           label: "Dopamina" },
-  { key: "electroshock",       label: "Electroshock" },
   { key: "sociedad",           label: "Sociedad" },
   { key: "ciencia-tecnologia", label: "Ciencia y Tecnología" },
-  { key: "salud-bienestar",    label: "Salud y Bienestar" },
-  { key: "artes-cultura",      label: "Artes y Cultura" },
+  { key: "salud-bienestar",    label: "Salud" },
+  { key: "artes-cultura",      label: "Cultura" },
 ];
 
 const ALL_SECTIONS = [...REGIONS, ...TENDENCIAS];
@@ -274,14 +272,12 @@ export default function App() {
 
         <div className="nav-wrapper">
           <div className="nav-row">
-            <span className="nav-row-label">Regiones</span>
-            {REGIONS.map(r => (
+{REGIONS.map(r => (
               <button key={r.key} className={`nav-btn${activeSection === r.key ? " active" : ""}`} onClick={() => handleSection(r.key)}>{r.label}</button>
             ))}
           </div>
           <div className="nav-row">
-            <span className="nav-row-label">Tendencias</span>
-            {TENDENCIAS.map(t => (
+{TENDENCIAS.map(t => (
               <button key={t.key} className={`nav-btn tendencia${activeSection === t.key ? " active" : ""}`} onClick={() => handleSection(t.key)}>{t.label}</button>
             ))}
           </div>
