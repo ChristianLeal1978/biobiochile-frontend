@@ -12,6 +12,8 @@ const REGIONS = [
   { key: "los-lagos",     label: "Los Lagos" },
   { key: "nacional",      label: "Nacional" },
   { key: "internacional", label: "Internacional" },
+  { key: "deportes",      label: "Deportes" },
+  { key: "economia",      label: "Economía" },
 ];
 
 const TENDENCIAS = [
@@ -24,27 +26,30 @@ const TENDENCIAS = [
   { key: "artes-cultura",      label: "Artes y Cultura" },
 ];
 
-const TENDENCIAS_KEYS = new Set(TENDENCIAS.map(t => t.key));
+const ALL_SECTIONS = [...REGIONS, ...TENDENCIAS];
 
 const CATEGORY_COLORS = {
   "Política regional": "#c0392b", "Política nacional": "#c0392b", "Política": "#c0392b",
-  "Economía / precios": "#b7770d", "Economía": "#b7770d",
-  "Clima / medio ambiente": "#1a6fa8", "Clima": "#1a6fa8", "Medio ambiente": "#1a6fa8",
-  "Fútbol": "#1a7a3c", "Salud": "#6c3483", "Salud mental": "#6c3483",
+  "Economía / precios": "#b7770d", "Economía": "#b7770d", "Mercados y finanzas": "#b7770d",
+  "Clima / medio ambiente": "#1a6fa8", "Clima": "#1a6fa8",
+  "Fútbol": "#1a7a3c", "Fútbol chileno": "#1a7a3c", "Deportes": "#1a7a3c",
+  "Salud": "#6c3483", "Salud mental": "#6c3483",
   "Conflicto mapuche": "#8B4513", "Seguridad": "#555",
   "Reality shows": "#d35400", "Farándula chilena": "#d35400",
   "Inteligencia artificial": "#1a6fa8", "Tecnología": "#1a6fa8",
   "Música": "#8e44ad", "Videojuegos": "#8e44ad",
   "Cine y teatro": "#2c3e50", "Literatura": "#2c3e50",
+  "Automovilismo": "#c0392b",
   default: "#444",
 };
 
 const styles = `
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   body { background: #e0e0e0; color: #111; font-family: Arial, Helvetica, sans-serif; min-height: 100vh; }
-  .app { max-width: 860px; margin: 0 auto; padding: 48px 24px 80px; }
+  .app { max-width: 900px; margin: 0 auto; padding: 40px 24px 80px; }
 
-  .header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px; padding-bottom: 24px; border-bottom: 2px solid #111; }
+  /* Header */
+  .header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; padding-bottom: 20px; border-bottom: 2px solid #111; }
   .logo { font-size: 11px; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; color: #c0392b; margin-bottom: 8px; }
   .title { font-size: 28px; font-weight: 700; color: #111; line-height: 1.1; }
   .subtitle { font-size: 13px; color: #444; margin-top: 6px; }
@@ -59,33 +64,38 @@ const styles = `
   .refresh-btn { margin-top: 8px; background: #fff; border: 1px solid #aaa; color: #333; font-family: Arial, sans-serif; font-size: 12px; padding: 5px 12px; border-radius: 3px; cursor: pointer; }
   .refresh-btn:hover { border-color: #111; }
 
-  /* Barra principal */
-  .main-bar { display: flex; gap: 3px; flex-wrap: wrap; margin-bottom: 4px; background: #d0d0d0; padding: 5px; border-radius: 6px 6px 0 0; }
-  .main-btn { flex: 1; min-width: max-content; background: transparent; border: none; color: #555; font-family: Arial, sans-serif; font-size: 13px; font-weight: 500; padding: 7px 10px; border-radius: 4px; cursor: pointer; white-space: nowrap; transition: all 0.15s; }
-  .main-btn:hover { background: #c8c8c8; color: #111; }
-  .main-btn.active { background: #fff; color: #111; font-weight: 700; box-shadow: 0 1px 3px rgba(0,0,0,0.12); }
-  .main-btn.tendencias-btn.active { background: #c0392b; color: #fff; }
+  /* Panel de fuentes */
+  .sources-panel { background: #fff; border: 1px solid #ccc; border-radius: 6px; padding: 14px 18px; margin-bottom: 16px; }
+  .sources-title { font-size: 11px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: #888; margin-bottom: 10px; }
+  .sources-grid { display: flex; flex-wrap: wrap; gap: 8px; }
+  .source-item { display: flex; align-items: center; gap: 6px; background: #f5f5f5; border: 1px solid #e0e0e0; border-radius: 4px; padding: 5px 10px; }
+  .source-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+  .source-dot.ok { background: #1a7a3c; }
+  .source-dot.err { background: #c0392b; }
+  .source-dot.loading { background: #b7770d; }
+  .source-name { font-size: 12px; color: #333; font-weight: 500; }
+  .source-detail { font-size: 11px; color: #888; }
 
-  /* Sub-barra Tendencias */
-  .sub-bar { display: flex; gap: 3px; flex-wrap: wrap; background: #c8c8c8; padding: 5px; border-radius: 0 0 6px 6px; margin-bottom: 24px; }
-  .sub-btn { flex: 1; min-width: max-content; background: transparent; border: none; color: #444; font-family: Arial, sans-serif; font-size: 12px; padding: 6px 10px; border-radius: 4px; cursor: pointer; white-space: nowrap; transition: all 0.15s; }
-  .sub-btn:hover { background: #bbb; color: #111; }
-  .sub-btn.active { background: #fff; color: #c0392b; font-weight: 700; }
+  /* Navegación — dos filas fijas */
+  .nav-wrapper { margin-bottom: 24px; }
+  .nav-row { display: flex; gap: 3px; flex-wrap: wrap; background: #d0d0d0; padding: 5px; }
+  .nav-row:first-child { border-radius: 6px 6px 0 0; border-bottom: 1px solid #bbb; }
+  .nav-row:last-child { border-radius: 0 0 6px 6px; }
+  .nav-row-label { font-size: 10px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: #888; padding: 4px 6px 2px; white-space: nowrap; align-self: center; }
+  .nav-btn { flex: 1; min-width: max-content; background: transparent; border: none; color: #555; font-family: Arial, sans-serif; font-size: 13px; font-weight: 500; padding: 7px 10px; border-radius: 4px; cursor: pointer; white-space: nowrap; transition: all 0.15s; }
+  .nav-btn:hover { background: #c8c8c8; color: #111; }
+  .nav-btn.active { background: #fff; color: #111; font-weight: 700; box-shadow: 0 1px 3px rgba(0,0,0,0.12); }
+  .nav-btn.tendencia.active { background: #c0392b; color: #fff; }
 
-  /* Barra solo regiones */
-  .region-bar { display: flex; gap: 3px; flex-wrap: wrap; margin-bottom: 24px; background: #d0d0d0; padding: 5px; border-radius: 6px; }
-  .region-btn { flex: 1; min-width: max-content; background: transparent; border: none; color: #555; font-family: Arial, sans-serif; font-size: 13px; font-weight: 500; padding: 7px 10px; border-radius: 4px; cursor: pointer; white-space: nowrap; transition: all 0.15s; }
-  .region-btn:hover { background: #c8c8c8; color: #111; }
-  .region-btn.active { background: #fff; color: #111; font-weight: 700; box-shadow: 0 1px 3px rgba(0,0,0,0.12); }
-
+  /* Alerta */
   .alert { background: #fff5f5; border-left: 4px solid #c0392b; border-radius: 0 4px 4px 0; padding: 16px 20px; margin-bottom: 24px; }
   .alert-label { font-size: 11px; font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase; color: #c0392b; margin-bottom: 6px; }
   .alert-text { font-size: 14px; color: #222; line-height: 1.6; }
 
   .week-label { font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: #777; margin-bottom: 16px; }
 
+  /* Cards */
   .cards { display: flex; flex-direction: column; gap: 10px; }
-
   .card { background: #fff; border: 1px solid #ccc; border-top: 4px solid var(--cat-color); border-radius: 6px; padding: 20px 24px; }
   .card-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
   .card-category { font-size: 11px; font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase; color: var(--cat-color); margin-bottom: 6px; }
@@ -109,6 +119,7 @@ const styles = `
   .fb-btn.active-descartado { background: #fdf0ef; border-color: #c0392b; color: #c0392b; font-weight: 700; }
   .fb-btn.active-pendiente { background: #fdf8ee; border-color: #b7770d; color: #b7770d; font-weight: 700; }
 
+  /* Estados */
   .state-center { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 260px; gap: 16px; }
   .spinner { width: 28px; height: 28px; border: 2px solid #ccc; border-top-color: #c0392b; border-radius: 50%; animation: spin 0.8s linear infinite; }
   @keyframes spin { to { transform: rotate(360deg); } }
@@ -118,6 +129,24 @@ const styles = `
 
   .footer { margin-top: 48px; padding-top: 20px; border-top: 1px solid #ccc; text-align: center; font-size: 12px; color: #999; }
 `;
+
+function SourcesPanel({ sources }) {
+  if (!sources || sources.length === 0) return null;
+  return (
+    <div className="sources-panel">
+      <div className="sources-title">Fuentes de datos activas</div>
+      <div className="sources-grid">
+        {sources.map((s, i) => (
+          <div className="source-item" key={i} title={s.detalle}>
+            <div className={`source-dot ${s.activa ? "ok" : "err"}`} />
+            <span className="source-name">{s.nombre}</span>
+            <span className="source-detail">— {s.detalle}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
 
 function PredictionCard({ pred, region, onFeedback, feedback }) {
   const catColor = CATEGORY_COLORS[pred.categoria] || CATEGORY_COLORS.default;
@@ -158,14 +187,12 @@ function PredictionCard({ pred, region, onFeedback, feedback }) {
 
 export default function App() {
   const [activeSection, setActiveSection] = useState("biobio");
-  const [showTendencias, setShowTendencias] = useState(false);
   const [cache, setCache] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [lastUpdate, setLastUpdate] = useState(null);
   const [feedback, setFeedback] = useState({});
-
-  const isTendencias = TENDENCIAS_KEYS.has(activeSection);
+  const [sources, setSources] = useState([]);
 
   const fetchSection = useCallback(async (key) => {
     setLoading(true);
@@ -183,28 +210,24 @@ export default function App() {
     }
   }, []);
 
+  const fetchStatus = useCallback(async () => {
+    try {
+      const res = await fetch(`${API}/status`);
+      if (!res.ok) return;
+      const json = await res.json();
+      setSources(json.fuentes || []);
+    } catch {}
+  }, []);
+
   useEffect(() => {
-    if (!cache[activeSection]) fetchSection(activeSection);
+    fetchSection(activeSection);
+    fetchStatus();
     const interval = setInterval(() => fetchSection(activeSection), POLL_INTERVAL);
-    return () => clearInterval(interval);
-  }, [activeSection, fetchSection]);
+    const statusInterval = setInterval(fetchStatus, POLL_INTERVAL);
+    return () => { clearInterval(interval); clearInterval(statusInterval); };
+  }, [activeSection, fetchSection, fetchStatus]);
 
-  const handleRegion = (key) => {
-    setActiveSection(key);
-    setShowTendencias(false);
-    setError(false);
-    if (!cache[key]) setLoading(true);
-  };
-
-  const handleTendenciasTab = () => {
-    setShowTendencias(true);
-    const first = TENDENCIAS[0].key;
-    setActiveSection(first);
-    setError(false);
-    if (!cache[first]) setLoading(true);
-  };
-
-  const handleSubSection = (key) => {
+  const handleSection = (key) => {
     setActiveSection(key);
     setError(false);
     if (!cache[key]) setLoading(true);
@@ -225,6 +248,7 @@ export default function App() {
   const formatTime = (d) => d ? d.toLocaleTimeString("es-CL", { hour: "2-digit", minute: "2-digit" }) : "";
   const data = cache[activeSection];
   const isLoading = loading && !data;
+  const isTendencia = TENDENCIAS.some(t => t.key === activeSection);
 
   return (
     <>
@@ -242,33 +266,26 @@ export default function App() {
               <span className="status-text">{isLoading ? "Cargando..." : error ? "Sin conexión" : "En vivo"}</span>
             </div>
             {lastUpdate && <div className="last-update">Actualizado {formatTime(lastUpdate)}</div>}
-            <button className="refresh-btn" onClick={() => { setCache(prev => ({ ...prev, [activeSection]: undefined })); fetchSection(activeSection); }}>↻ Actualizar</button>
+            <button className="refresh-btn" onClick={() => { setCache(prev => ({ ...prev, [activeSection]: undefined })); fetchSection(activeSection); fetchStatus(); }}>↻ Actualizar</button>
           </div>
         </header>
 
-        {/* Navegación */}
-        {showTendencias ? (
-          <>
-            <div className="main-bar">
-              {REGIONS.map(r => (
-                <button key={r.key} className="main-btn" onClick={() => handleRegion(r.key)}>{r.label}</button>
-              ))}
-              <button className="main-btn tendencias-btn active" onClick={() => setShowTendencias(true)}>Tendencias</button>
-            </div>
-            <div className="sub-bar">
-              {TENDENCIAS.map(t => (
-                <button key={t.key} className={`sub-btn${activeSection === t.key ? " active" : ""}`} onClick={() => handleSubSection(t.key)}>{t.label}</button>
-              ))}
-            </div>
-          </>
-        ) : (
-          <div className="region-bar">
+        <SourcesPanel sources={sources} />
+
+        <div className="nav-wrapper">
+          <div className="nav-row">
+            <span className="nav-row-label">Regiones</span>
             {REGIONS.map(r => (
-              <button key={r.key} className={`region-btn${activeSection === r.key ? " active" : ""}`} onClick={() => handleRegion(r.key)}>{r.label}</button>
+              <button key={r.key} className={`nav-btn${activeSection === r.key ? " active" : ""}`} onClick={() => handleSection(r.key)}>{r.label}</button>
             ))}
-            <button className="region-btn tendencias-btn" onClick={handleTendenciasTab}>Tendencias ▾</button>
           </div>
-        )}
+          <div className="nav-row">
+            <span className="nav-row-label">Tendencias</span>
+            {TENDENCIAS.map(t => (
+              <button key={t.key} className={`nav-btn tendencia${activeSection === t.key ? " active" : ""}`} onClick={() => handleSection(t.key)}>{t.label}</button>
+            ))}
+          </div>
+        </div>
 
         {isLoading && <div className="state-center"><div className="spinner" /><div className="state-msg">Cargando predicciones...</div></div>}
         {error && !isLoading && <div className="state-center"><div className="state-msg">No se pudo conectar al servidor</div><button className="retry-btn" onClick={() => fetchSection(activeSection)}>Reintentar</button></div>}
