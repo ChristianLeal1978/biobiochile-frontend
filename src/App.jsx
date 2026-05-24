@@ -48,7 +48,6 @@ const styles = `
   body { background: #e0e0e0; color: #111; font-family: Arial, Helvetica, sans-serif; min-height: 100vh; }
   .app { max-width: 900px; margin: 0 auto; padding: 40px 24px 80px; }
 
-  /* Header */
   .header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; padding-bottom: 20px; border-bottom: 2px solid #111; }
   .logo { font-size: 11px; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; color: #c0392b; margin-bottom: 8px; }
   .title { font-size: 28px; font-weight: 700; color: #111; line-height: 1.1; }
@@ -64,37 +63,33 @@ const styles = `
   .refresh-btn { margin-top: 8px; background: #fff; border: 1px solid #aaa; color: #333; font-family: Arial, sans-serif; font-size: 12px; padding: 5px 12px; border-radius: 3px; cursor: pointer; }
   .refresh-btn:hover { border-color: #111; }
 
-  /* Panel de fuentes */
   .sources-panel { background: #fff; border: 1px solid #ccc; border-radius: 6px; padding: 14px 18px; margin-bottom: 16px; }
   .sources-title { font-size: 11px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: #888; margin-bottom: 10px; }
   .sources-grid { display: flex; flex-wrap: wrap; gap: 8px; }
   .source-item { display: flex; align-items: center; gap: 6px; background: #f5f5f5; border: 1px solid #e0e0e0; border-radius: 4px; padding: 5px 10px; }
   .source-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
-  .source-dot.ok { background: #1a7a3c; }
-  .source-dot.err { background: #c0392b; }
-  .source-dot.loading { background: #b7770d; }
-  .source-name { font-size: 12px; color: #333; font-weight: 500; }
+  .source-dot.ok     { background: #1a7a3c; }
+  .source-dot.stale  { background: #b7770d; }
+  .source-dot.error  { background: #c0392b; }
+  .source-name   { font-size: 12px; color: #333; font-weight: 500; }
   .source-detail { font-size: 11px; color: #888; }
+  .source-time   { font-size: 11px; color: #aaa; margin-left: 4px; }
 
-  /* Navegación — dos filas fijas */
   .nav-wrapper { margin-bottom: 24px; }
   .nav-row { display: flex; gap: 3px; flex-wrap: wrap; background: #d0d0d0; padding: 5px; }
   .nav-row:first-child { border-radius: 6px 6px 0 0; border-bottom: 1px solid #bbb; }
-  .nav-row:last-child { border-radius: 0 0 6px 6px; }
-  .nav-row-label { font-size: 10px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: #888; padding: 4px 6px 2px; white-space: nowrap; align-self: center; }
+  .nav-row:last-child  { border-radius: 0 0 6px 6px; }
   .nav-btn { flex: 1; min-width: max-content; background: transparent; border: none; color: #555; font-family: Arial, sans-serif; font-size: 13px; font-weight: 500; padding: 7px 10px; border-radius: 4px; cursor: pointer; white-space: nowrap; transition: all 0.15s; }
   .nav-btn:hover { background: #c8c8c8; color: #111; }
   .nav-btn.active { background: #fff; color: #111; font-weight: 700; box-shadow: 0 1px 3px rgba(0,0,0,0.12); }
   .nav-btn.tendencia.active { background: #c0392b; color: #fff; }
 
-  /* Alerta */
   .alert { background: #fff5f5; border-left: 4px solid #c0392b; border-radius: 0 4px 4px 0; padding: 16px 20px; margin-bottom: 24px; }
   .alert-label { font-size: 11px; font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase; color: #c0392b; margin-bottom: 6px; }
-  .alert-text { font-size: 14px; color: #222; line-height: 1.6; }
+  .alert-text  { font-size: 14px; color: #222; line-height: 1.6; }
 
   .week-label { font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: #777; margin-bottom: 16px; }
 
-  /* Cards */
   .cards { display: flex; flex-direction: column; gap: 10px; }
   .card { background: #fff; border: 1px solid #ccc; border-top: 4px solid var(--cat-color); border-radius: 6px; padding: 20px 24px; }
   .card-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
@@ -102,12 +97,12 @@ const styles = `
   .card-tema { font-size: 18px; font-weight: 700; color: #111; line-height: 1.25; }
   .card-confidence { text-align: right; flex-shrink: 0; margin-left: 20px; }
   .confidence-number { font-size: 30px; font-weight: 700; color: var(--cat-color); line-height: 1; }
-  .confidence-label { font-size: 11px; color: #888; margin-top: 2px; }
+  .confidence-label  { font-size: 11px; color: #888; margin-top: 2px; }
   .card-razon { font-size: 14px; color: #444; line-height: 1.65; margin-bottom: 16px; border-left: 2px solid #ddd; padding-left: 12px; }
   .enfoques-label { font-size: 11px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: #888; margin-bottom: 8px; }
   .enfoques { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; }
-  .enfoque-item { background: #f0f0f0; border: 1px solid #ddd; border-radius: 4px; padding: 10px 14px; }
-  .enfoque-tag { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: #555; margin-bottom: 4px; }
+  .enfoque-item    { background: #f0f0f0; border: 1px solid #ddd; border-radius: 4px; padding: 10px 14px; }
+  .enfoque-tag     { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: #555; margin-bottom: 4px; }
   .enfoque-titular { font-size: 14px; color: #111; line-height: 1.4; }
   .card-bottom { display: flex; justify-content: space-between; align-items: center; padding-top: 14px; border-top: 1px solid #eee; flex-wrap: wrap; gap: 8px; }
   .ventana { font-size: 13px; color: #777; }
@@ -115,11 +110,10 @@ const styles = `
   .feedback-btns { display: flex; gap: 6px; }
   .fb-btn { background: #fff; border: 1px solid #bbb; color: #444; font-family: Arial, sans-serif; font-size: 12px; padding: 5px 12px; border-radius: 3px; cursor: pointer; transition: all 0.15s; }
   .fb-btn:hover { border-color: #555; color: #111; }
-  .fb-btn.active-usado { background: #edfaf3; border-color: #1a7a3c; color: #1a7a3c; font-weight: 700; }
+  .fb-btn.active-usado      { background: #edfaf3; border-color: #1a7a3c; color: #1a7a3c; font-weight: 700; }
   .fb-btn.active-descartado { background: #fdf0ef; border-color: #c0392b; color: #c0392b; font-weight: 700; }
-  .fb-btn.active-pendiente { background: #fdf8ee; border-color: #b7770d; color: #b7770d; font-weight: 700; }
+  .fb-btn.active-pendiente  { background: #fdf8ee; border-color: #b7770d; color: #b7770d; font-weight: 700; }
 
-  /* Estados */
   .state-center { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 260px; gap: 16px; }
   .spinner { width: 28px; height: 28px; border: 2px solid #ccc; border-top-color: #c0392b; border-radius: 50%; animation: spin 0.8s linear infinite; }
   @keyframes spin { to { transform: rotate(360deg); } }
@@ -130,19 +124,33 @@ const styles = `
   .footer { margin-top: 48px; padding-top: 20px; border-top: 1px solid #ccc; text-align: center; font-size: 12px; color: #999; }
 `;
 
+function formatTimestamp(isoStr) {
+  if (!isoStr) return null;
+  const d = new Date(isoStr);
+  const now = new Date();
+  const isToday = d.toDateString() === now.toDateString();
+  const hhmm = d.toLocaleTimeString("es-CL", { hour: "2-digit", minute: "2-digit" });
+  return isToday ? hhmm : `${d.getDate()}/${d.getMonth()+1} ${hhmm}`;
+}
+
 function SourcesPanel({ sources }) {
   if (!sources || sources.length === 0) return null;
   return (
     <div className="sources-panel">
       <div className="sources-title">Fuentes de datos activas</div>
       <div className="sources-grid">
-        {sources.map((s, i) => (
-          <div className="source-item" key={i} title={s.detalle}>
-            <div className={`source-dot ${s.activa ? "ok" : "err"}`} />
-            <span className="source-name">{s.nombre}</span>
-            <span className="source-detail">— {s.detalle}</span>
-          </div>
-        ))}
+        {sources.map((s, i) => {
+          const dotClass = s.status === "ok" ? "ok" : s.status === "stale" ? "stale" : "error";
+          const ts = formatTimestamp(s.updated_at);
+          return (
+            <div className="source-item" key={i} title={s.descripcion}>
+              <div className={`source-dot ${dotClass}`} />
+              <span className="source-name">{s.nombre}</span>
+              <span className="source-detail">— {s.detalle}</span>
+              {ts && <span className="source-time">· {ts}</span>}
+            </div>
+          );
+        })}
       </div>
     </div>
   );
@@ -176,8 +184,8 @@ function PredictionCard({ pred, region, onFeedback, feedback }) {
       <div className="card-bottom">
         <div className="ventana">Ventana óptima <span>{pred.ventana_optima}</span></div>
         <div className="feedback-btns">
-          <button className={`fb-btn${estado === "usado" ? " active-usado" : ""}`} onClick={() => onFeedback(pred.tema, "usado")}>✓ Usado</button>
-          <button className={`fb-btn${estado === "pendiente" ? " active-pendiente" : ""}`} onClick={() => onFeedback(pred.tema, "pendiente")}>⏳ Pendiente</button>
+          <button className={`fb-btn${estado === "usado"      ? " active-usado"      : ""}`} onClick={() => onFeedback(pred.tema, "usado")}>✓ Usado</button>
+          <button className={`fb-btn${estado === "pendiente"  ? " active-pendiente"  : ""}`} onClick={() => onFeedback(pred.tema, "pendiente")}>⏳ Pendiente</button>
           <button className={`fb-btn${estado === "descartado" ? " active-descartado" : ""}`} onClick={() => onFeedback(pred.tema, "descartado")}>✕ Descartar</button>
         </div>
       </div>
@@ -248,7 +256,6 @@ export default function App() {
   const formatTime = (d) => d ? d.toLocaleTimeString("es-CL", { hour: "2-digit", minute: "2-digit" }) : "";
   const data = cache[activeSection];
   const isLoading = loading && !data;
-  const isTendencia = TENDENCIAS.some(t => t.key === activeSection);
 
   return (
     <>
