@@ -426,8 +426,8 @@ export default function App() {
 
         {!isLoading && !error && data && (
           <>
-            {activeSection === "economia" && <EconomiaCharts />}
-            {STOCK_SECTIONS.has(activeSection) && bolsa.length > 0 && <BolsaPanel bolsa={bolsa} />}
+            <EconomiaCharts />
+            {activeSection === "economia" && bolsa.length > 0 && <BolsaPanel bolsa={bolsa} />}
 
             {data.alerta && (
               <div className="alert">
